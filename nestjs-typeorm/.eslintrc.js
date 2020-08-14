@@ -23,5 +23,12 @@ module.exports = {
     '@typescript-eslint/no-non-null-assertion': 'off',
     'no-console': 'error',
     'no-debugger': 'error',
+    'no-restricted-imports': [
+      'error',
+      {
+        name: 'config',
+        message: 'Please inject config service or use configServiceInstance directly',
+      },
+    ],
   },
 };

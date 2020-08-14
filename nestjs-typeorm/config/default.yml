@@ -1,0 +1,11 @@
+server:
+  port: 3000
+  origin:
+    - 'http://localhost'
+
+db:
+  type: 'postgres'
+  port: 5432
+  database: 'nest-db'
+  synchronize: false
+  migrationsRun: true
