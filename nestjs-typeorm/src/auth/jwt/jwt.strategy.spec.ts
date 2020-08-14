@@ -2,7 +2,7 @@ import { UnauthorizedException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import { ConfigService } from '../../shared/config/config.service';
-import { User, UserStatus } from '../user.entity';
+import { UserEntity } from '../user.entity';
 import { UserRepository } from '../user.repository';
 import { JwtStrategy } from './jwt.strategy';
 
@@ -37,10 +37,9 @@ describe('JwtStrategy', () => {
 
   describe('validate', () => {
     it('validates and returns the user based on JWT payload', async () => {
-      const mockUser = new User();
+      const mockUser = new UserEntity();
       mockUser.id = 1;
       mockUser.email = 'test@test.com';
-      mockUser.status = UserStatus.ACTIVE;
 
       jest.spyOn(userRepository, 'findOne').mockResolvedValue(mockUser);
       const result = await jwtStrategy.validate({ id: 1, email: 'test@test.com' });
@@ -55,7 +54,7 @@ describe('JwtStrategy', () => {
             'createdAt',
             'updatedAt',
             'role',
-            'tokenVersion'
+            'tokenVersion',
           ],
         },
       );
