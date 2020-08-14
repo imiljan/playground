@@ -77,12 +77,12 @@
       "^.+\\.(t|j)s$": "ts-jest"
     },
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node",
-    "husky": {
-      "hooks": {
-        "pre-commit": "npm run lint",
-        "pre-push": "npm test"
-      }
+    "testEnvironment": "node"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint",
+      "pre-push": "npm test"
     }
   }
 }
