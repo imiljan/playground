@@ -9,3 +9,7 @@ db:
   database: 'nest-db'
   synchronize: false
   migrationsRun: true
+
+jwt:
+  expiresIn: 3600
+  refreshExpiresIn: '7d'

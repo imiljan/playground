@@ -13,3 +13,10 @@ export interface DbConfig {
   synchronize: boolean;
   migrationsRun: boolean;
 }
+
+
+export interface JwtConfig {
+  secret: string;
+  expiresIn: number;
+  refreshExpiresIn: string;
+}

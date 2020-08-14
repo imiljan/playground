@@ -9,3 +9,7 @@ db:
   password: 'dev'
   synchronize: true
   migrationsRun: false
+
+jwt:
+  secret: 'supersecret'
+  expiresIn: 3600000
