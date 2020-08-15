@@ -13,3 +13,12 @@ db:
 jwt:
   expiresIn: 3600
   refreshExpiresIn: '7d'
+
+mail:
+  host: mail
+  port: 1025
+  ignoreTLS: true
+  secure: false
+  auth:
+    user: username
+    pass: password

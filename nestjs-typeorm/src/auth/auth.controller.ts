@@ -15,8 +15,10 @@ import ms from 'ms';
 
 import { ConfigService } from '../shared/config/config.service';
 import { AuthService } from './auth.service';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { GetUser } from './jwt/user.decorator';
 import { UserEntity } from './user.entity';
 
@@ -68,6 +70,16 @@ export class AuthController {
   me(@GetUser() user: UserEntity) {
     delete user.password;
     return user;
+  }
+
+  @Post('/forgot-password')
+  forgotPassword(@Body(ValidationPipe) forgotPasswordDto: ForgotPasswordDto) {
+    return this.authService.forgotPassword(forgotPasswordDto.email);
+  }
+
+  @Post('/reset-password')
+  resetPassword(@Body(ValidationPipe) resetPasswordDto: ResetPasswordDto) {
+    return this.authService.resetPassword(resetPasswordDto);
   }
 
   // Helper functions

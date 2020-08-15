@@ -49,6 +49,20 @@ services:
     depends_on:
       - db
 
+  mail:
+    image: aeimer/mailhog-secure
+    container_name: nest-mail
+    restart: unless-stopped
+    environment:
+      MH_USER: dev
+      MH_PWD: dev
+    ports:
+      - 1025:1025
+      - 8025:8025
+    volumes:
+      - mail:/data/mailhog
+    networks:
+      - nest-network
 
 networks:
   nest-network:
@@ -61,3 +75,5 @@ volumes:
   pgdata:
     driver: local
 
+  mail:
+    driver: local

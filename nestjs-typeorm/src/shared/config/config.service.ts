@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { get as getConfig } from 'config';
 
-import { DbConfig, JwtConfig, ServerConfig } from './config.types';
+import { DbConfig, JwtConfig, MailConfig, ServerConfig } from './config.types';
 
 // Allow import from 'config' module only in this file
 /* eslint no-restricted-imports: 0 */
@@ -12,6 +12,7 @@ export class ConfigService {
   readonly db: DbConfig;
   readonly typeorm: TypeOrmModuleOptions;
   readonly jwt: JwtConfig;
+  readonly mailConfig: MailConfig;
 
   constructor() {
     this.server = getConfig('server');
@@ -38,6 +39,8 @@ export class ConfigService {
             }
           : null,
     };
+
+    this.mailConfig = getConfig('mail');
   }
 }
 

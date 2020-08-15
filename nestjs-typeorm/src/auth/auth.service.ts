@@ -1,12 +1,25 @@
-import { ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  GoneException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash as hashPassword, verify as verifyPassword } from 'argon2';
+import ms from 'ms';
+import { Connection } from 'typeorm';
 
+import { MailService } from '../mail/mail.service';
 import { ConfigService } from '../shared/config/config.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
+import { ResetPasswordDto } from './dto/reset-password.dto';
 import { JWTPayload } from './jwt/jwt-payload.interface';
+import { ForgotPasswordEntity } from './password/forgot-password.entity';
+import { ForgotPasswordRepository } from './password/forgot-password.repository';
 import { UserEntity } from './user.entity';
 import { UserRepository } from './user.repository';
 
@@ -22,8 +35,12 @@ export class AuthService {
   constructor(
     @InjectRepository(UserRepository)
     private readonly userRepository: UserRepository,
+    @InjectRepository(ForgotPasswordRepository)
+    private readonly forgotPasswordRepository: ForgotPasswordRepository,
+    private readonly connection: Connection,
     private readonly jwtService: JwtService,
     private readonly config: ConfigService,
+    private readonly mailService: MailService,
   ) {}
 
   async register(registerDto: RegisterDto): Promise<UserEntity> {
@@ -89,6 +106,49 @@ export class AuthService {
     await this.userRepository.increment({ id }, 'tokenVersion', 1);
   }
 
+  async forgotPassword(email: string) {
+    if ((await this.userRepository.count({ email })) === 0) {
+      throw new NotFoundException('Email not found');
+    }
+
+    const code = Math.floor(Math.random() * 100000);
+    const expiresAt = new Date(Date.now() + ms('15m'));
+
+    await this.forgotPasswordRepository.save({
+      email,
+      code,
+      expiresAt,
+    });
+
+    this.mailService.sendForgotPasswordEmail(email, code);
+  }
+
+  async resetPassword(resetPasswordDto: ResetPasswordDto) {
+    const { password, code, email } = resetPasswordDto;
+
+    const forgotPassword = await this.forgotPasswordRepository.findOne({ where: { email, code } });
+
+    if (!forgotPassword) {
+      throw new NotFoundException('Request for change password not found!');
+    }
+
+    if (forgotPassword.expiresAt.getTime() < Date.now()) {
+      this.forgotPasswordRepository
+        .delete({ email: forgotPassword.email })
+        .catch((err) => this.logger.error(err));
+      throw new GoneException('Request for change password expired!');
+    }
+
+    const hashedPassword = await hashPassword(password);
+
+    await this.connection
+      .transaction(async (manager) => {
+        await manager.update(UserEntity, { email }, { password: hashedPassword });
+        await manager.delete(ForgotPasswordEntity, { email: forgotPassword.email });
+      })
+      .catch((e) => this.logger.error('Reset password failed\n' + e));
+  }
+
   // Private functions
   /**
    *
@@ -97,6 +157,7 @@ export class AuthService {
   private async generateTokens(user: UserEntity) {
     const payload: JWTPayload = { id: user.id, email: user.email };
 
+    // TODO: userId in jwt subject?
     const accessToken = await this.jwtService.signAsync(payload);
 
     // ? Check if there is a way to use different secret for signing

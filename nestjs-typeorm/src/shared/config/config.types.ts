@@ -19,3 +19,16 @@ export interface JwtConfig {
   expiresIn: number;
   refreshExpiresIn: string;
 }
+
+interface MailAuth {
+  user: string;
+  pass: string;
+}
+
+export interface MailConfig {
+  host: string;
+  port: number;
+  ignoreTLS: boolean;
+  secure: boolean;
+  auth: MailAuth;
+}
