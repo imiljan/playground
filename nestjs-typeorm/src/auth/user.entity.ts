@@ -1,18 +1,18 @@
 import {
   Column,
   CreateDateColumn,
-  UpdateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
 export enum UserRole {
   GUEST = 'GUEST',
   USER = 'USER',
-  ADMIN = 'ADMIN'
+  ADMIN = 'ADMIN',
 }
 
-@Entity({name: 'user'})
+@Entity({ name: 'user' })
 export class UserEntity {
   @PrimaryGeneratedColumn()
   id: number;
@@ -20,7 +20,7 @@ export class UserEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column({ select: false,length: 255 })
+  @Column({ select: false, length: 255 })
   password: string;
 
   @Column()
@@ -42,5 +42,4 @@ export class UserEntity {
   // Min value for integer in postgres
   @Column({ default: -2147483648, select: false })
   tokenVersion: number;
-
 }

@@ -8,7 +8,6 @@ import { DbConfig, JwtConfig, ServerConfig } from './config.types';
 /* eslint no-restricted-imports: 0 */
 @Injectable()
 export class ConfigService {
-
   readonly server: ServerConfig;
   readonly db: DbConfig;
   readonly typeorm: TypeOrmModuleOptions;
@@ -34,12 +33,11 @@ export class ConfigService {
       ssl:
         process.env.NODE_ENV === 'production'
           ? {
-            rejectUnauthorized: true,
-            ca: process.env.DB_CA,
-          }
+              rejectUnauthorized: true,
+              ca: process.env.DB_CA,
+            }
           : null,
     };
-
   }
 }
 

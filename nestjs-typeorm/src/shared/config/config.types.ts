@@ -14,7 +14,6 @@ export interface DbConfig {
   migrationsRun: boolean;
 }
 
-
 export interface JwtConfig {
   secret: string;
   expiresIn: number;

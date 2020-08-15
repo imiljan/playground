@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+
 import { ConfigService, configServiceInstance } from './config/config.service';
 
 @Module({
@@ -10,5 +11,4 @@ import { ConfigService, configServiceInstance } from './config/config.service';
   ],
   exports: [ConfigService],
 })
-export class SharedModule {
-}
+export class SharedModule {}
