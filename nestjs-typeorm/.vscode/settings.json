@@ -7,5 +7,13 @@
   "typescriptHero.imports.organizeOnSave": true,
   "typescriptHero.imports.disableImportRemovalOnOrganize": false,
   "typescriptHero.imports.multiLineWrapThreshold": 100,
-  "typescript.preferences.importModuleSpecifier": "relative"
+  "typescript.preferences.importModuleSpecifier": "relative",
+
+  "rest-client.environmentVariables": {
+    "$shared": {},
+    "local": {
+      "hostname": "localhost",
+      "port": "3000"
+    }
+  }
 }

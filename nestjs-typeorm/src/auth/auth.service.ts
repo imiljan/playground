@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { hash as hashPassword, verify as verifyPassword } from 'argon2';
@@ -10,9 +10,14 @@ import { JWTPayload } from './jwt/jwt-payload.interface';
 import { UserEntity } from './user.entity';
 import { UserRepository } from './user.repository';
 
+interface RefreshTokenPayload {
+  id: number;
+  tokenVersion: number;
+}
+
 @Injectable()
 export class AuthService {
-  // private logger = new Logger(AuthService.name);
+  private logger = new Logger(AuthService.name);
 
   constructor(
     @InjectRepository(UserRepository)
@@ -59,6 +64,31 @@ export class AuthService {
     return this.generateTokens(user);
   }
 
+  async refresh(token: string) {
+    try {
+      const { id, tokenVersion }: RefreshTokenPayload = await this.jwtService.verifyAsync(token);
+
+      const user = await this.userRepository.findOne(id, {
+        select: ['id', 'email', 'tokenVersion'],
+      });
+
+      if (!user || user.tokenVersion != tokenVersion) {
+        throw new UnauthorizedException('Session expired!');
+      }
+
+      return this.generateTokens(user);
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
+  }
+
+  async logout(token: string) {
+    const { id }: RefreshTokenPayload = await this.jwtService
+      .verifyAsync(token)
+      .catch((err) => this.logger.error(err));
+    await this.userRepository.increment({ id }, 'tokenVersion', 1);
+  }
+
   // Private functions
   /**
    *
@@ -68,12 +98,17 @@ export class AuthService {
     const payload: JWTPayload = { id: user.id, email: user.email };
 
     const accessToken = await this.jwtService.signAsync(payload);
+
     // ? Check if there is a way to use different secret for signing
     const { refreshExpiresIn } = this.config.jwt;
-    const refreshToken = await this.jwtService.signAsync(
-      { id: user.id, tokenVersion: user.tokenVersion },
-      { expiresIn: refreshExpiresIn },
-    );
+    const refreshTokenPayload: RefreshTokenPayload = {
+      id: user.id,
+      tokenVersion: user.tokenVersion,
+    };
+
+    const refreshToken = await this.jwtService.signAsync(refreshTokenPayload, {
+      expiresIn: refreshExpiresIn,
+    });
 
     return { accessToken, refreshToken };
   }
