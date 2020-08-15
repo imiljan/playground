@@ -6,7 +6,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '../../shared/config/config.service';
 import { UserEntity } from '../user.entity';
 import { UserRepository } from '../user.repository';
-import { JWTPayload } from './jwt-payload.interface';
+import { AccessTokenPayload } from './jwt-payload.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: JWTPayload): Promise<UserEntity> {
+  async validate(payload: AccessTokenPayload): Promise<UserEntity> {
     const { email } = payload;
     const user = await this.userRepository.findOne(
       { email },

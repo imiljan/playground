@@ -22,3 +22,10 @@ mail:
   auth:
     user: username
     pass: password
+
+aws:
+  s3BucketName: 'nest-test'
+  accessKeyId: 'minio'
+  secretAccessKey: 'minio123'
+  endpoint: localhost:9000
+  region: us-east-1

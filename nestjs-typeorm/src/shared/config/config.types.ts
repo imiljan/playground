@@ -32,3 +32,11 @@ export interface MailConfig {
   secure: boolean;
   auth: MailAuth;
 }
+
+export interface AWSConfig {
+  s3BucketName: string;
+  accessKeyId: string;
+  secretAccessKey: string;
+  endpoint: string;
+  region: string;
+}

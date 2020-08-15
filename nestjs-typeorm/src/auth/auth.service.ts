@@ -17,16 +17,11 @@ import { ConfigService } from '../shared/config/config.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { JWTPayload } from './jwt/jwt-payload.interface';
+import { AccessTokenPayload, RefreshTokenPayload } from './jwt/jwt-payload.interface';
 import { ForgotPasswordEntity } from './password/forgot-password.entity';
 import { ForgotPasswordRepository } from './password/forgot-password.repository';
 import { UserEntity } from './user.entity';
 import { UserRepository } from './user.repository';
-
-interface RefreshTokenPayload {
-  id: number;
-  tokenVersion: number;
-}
 
 @Injectable()
 export class AuthService {
@@ -155,7 +150,7 @@ export class AuthService {
    * @param user User must have id, email and tokenVersion
    */
   private async generateTokens(user: UserEntity) {
-    const payload: JWTPayload = { id: user.id, email: user.email };
+    const payload: AccessTokenPayload = { id: user.id, email: user.email };
 
     // TODO: userId in jwt subject?
     const accessToken = await this.jwtService.signAsync(payload);

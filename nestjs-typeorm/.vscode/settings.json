@@ -18,6 +18,7 @@
   },
   "cSpell.words": [
     "nestjs",
-    "typeorm"
+    "typeorm",
+    "uuidv"
   ]
 }
