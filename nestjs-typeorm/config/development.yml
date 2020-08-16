@@ -1,0 +1,15 @@
+server:
+  origin:
+    - 'http://localhost:8100'
+    - 'http://localhost'
+
+db:
+  host: 'db'
+  username: 'dev'
+  password: 'dev'
+  synchronize: true
+  migrationsRun: false
+
+jwt:
+  secret: 'supersecret'
+  expiresIn: 3600000

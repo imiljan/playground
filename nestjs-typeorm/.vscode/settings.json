@@ -1,0 +1,24 @@
+{
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.tabSize": 2,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.rulers": [100],
+  "typescriptHero.imports.organizeOnSave": true,
+  "typescriptHero.imports.disableImportRemovalOnOrganize": false,
+  "typescriptHero.imports.multiLineWrapThreshold": 100,
+  "typescript.preferences.importModuleSpecifier": "relative",
+
+  "rest-client.environmentVariables": {
+    "$shared": {},
+    "local": {
+      "hostname": "localhost",
+      "port": "3000"
+    }
+  },
+  "cSpell.words": [
+    "nestjs",
+    "typeorm",
+    "uuidv"
+  ]
+}

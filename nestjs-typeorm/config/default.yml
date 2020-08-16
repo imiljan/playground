@@ -1,0 +1,31 @@
+server:
+  port: 3000
+  origin:
+    - 'http://localhost'
+
+db:
+  type: 'postgres'
+  port: 5432
+  database: 'nest-db'
+  synchronize: false
+  migrationsRun: true
+
+jwt:
+  expiresIn: 3600
+  refreshExpiresIn: '7d'
+
+mail:
+  host: mail
+  port: 1025
+  ignoreTLS: true
+  secure: false
+  auth:
+    user: username
+    pass: password
+
+aws:
+  s3BucketName: 'nest-test'
+  accessKeyId: 'minio'
+  secretAccessKey: 'minio123'
+  endpoint: localhost:9000
+  region: us-east-1

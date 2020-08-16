@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "rbbit.typescript-hero",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint",
+        "editorconfig.editorconfig",
+        "humao.rest-client"
+    ]
+}
