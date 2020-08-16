@@ -19,7 +19,7 @@ import { UserRepository } from '../user/user.repository';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
-import { AccessTokenPayload, RefreshTokenPayload } from './jwt/jwt-payload.interface';
+import { RefreshTokenPayload } from './jwt/jwt.interface';
 import { ForgotPasswordEntity } from './password/forgot-password.entity';
 import { ForgotPasswordRepository } from './password/forgot-password.repository';
 
@@ -66,7 +66,7 @@ export class AuthService {
   async login({ email, password }: LoginDto) {
     const user = await this.userRepository.findOne(
       { email },
-      { select: ['id', 'email', 'password', 'tokenVersion'] },
+      { select: ['id', 'email', 'password', 'tokenVersion', 'role'] },
     );
 
     if (!user || !(await verifyPassword(user.password, password))) {
@@ -78,7 +78,9 @@ export class AuthService {
 
   async refresh(token: string) {
     try {
-      const { id, tokenVersion }: RefreshTokenPayload = await this.jwtService.verifyAsync(token);
+      const { sub: id, tokenVersion }: RefreshTokenPayload = await this.jwtService.verifyAsync(
+        token,
+      );
 
       const user = await this.userRepository.findOne(id, {
         select: ['id', 'email', 'tokenVersion'],
@@ -95,10 +97,10 @@ export class AuthService {
   }
 
   async logout(token: string) {
-    const { id }: RefreshTokenPayload = await this.jwtService
+    const { sub: id }: RefreshTokenPayload = await this.jwtService
       .verifyAsync(token)
       .catch((err) => this.logger.error(err));
-    await this.userRepository.increment({ id }, 'tokenVersion', 1);
+    await this.userRepository.increment({ id: parseInt(id) }, 'tokenVersion', 1);
   }
 
   async forgotPassword(email: string) {
@@ -150,21 +152,24 @@ export class AuthService {
    * @param user User must have id, email and tokenVersion
    */
   private async generateTokens(user: UserEntity) {
-    const payload: AccessTokenPayload = { id: user.id, email: user.email };
-
-    // TODO: userId in jwt subject?
-    const accessToken = await this.jwtService.signAsync(payload);
+    const accessToken = await this.jwtService.signAsync(
+      {
+        email: user.email,
+        role: user.role,
+      },
+      { subject: '' + user.id },
+    );
 
     // ? Check if there is a way to use different secret for signing
-    const { refreshExpiresIn } = this.config.jwt;
-    const refreshTokenPayload: RefreshTokenPayload = {
-      id: user.id,
-      tokenVersion: user.tokenVersion,
-    };
-
-    const refreshToken = await this.jwtService.signAsync(refreshTokenPayload, {
-      expiresIn: refreshExpiresIn,
-    });
+    const refreshToken = await this.jwtService.signAsync(
+      {
+        tokenVersion: user.tokenVersion,
+      },
+      {
+        subject: '' + user.id,
+        expiresIn: this.config.jwt.refreshExpiresIn,
+      },
+    );
 
     return { accessToken, refreshToken };
   }

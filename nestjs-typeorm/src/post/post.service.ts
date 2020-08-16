@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 
-import { UserEntity } from '../user/user.entity';
+import { JWTUser } from '../auth/jwt/jwt.interface';
 import { CreatePostDto } from './dto/create-post.dto';
 import { GetPostsDto } from './dto/get-posts.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -19,7 +19,11 @@ export class PostService {
 
   getAllPosts(getPostsDto: GetPostsDto) {
     const { take, skip } = getPostsDto;
-    return this.postRepository.find({ take, skip, order: { createdAt: 'DESC' } });
+    return this.postRepository.find({
+      take: take ? take : 10,
+      skip: skip ? skip : 0,
+      order: { createdAt: 'DESC' },
+    });
   }
 
   getPost(postId: number) {
@@ -29,9 +33,9 @@ export class PostService {
     });
   }
 
-  createPost(createPostDto: CreatePostDto, author: UserEntity) {
+  createPost(createPostDto: CreatePostDto, author: JWTUser) {
     const { title, body } = createPostDto;
-    const post: PostEntity = this.postRepository.create({ title, body, author });
+    const post: PostEntity = this.postRepository.create({ title, body, author: { id: author.id } });
     return this.postRepository.save(post);
   }
 
@@ -42,7 +46,7 @@ export class PostService {
     }
   }
 
-  async updatePost(postId: number, updatePostDto: UpdatePostDto, author: UserEntity) {
+  async updatePost(postId: number, updatePostDto: UpdatePostDto, author: JWTUser) {
     const post = await this.postRepository.findOne(postId, { relations: ['author'] });
     if (post?.author.id !== author.id) {
       throw new ForbiddenException();

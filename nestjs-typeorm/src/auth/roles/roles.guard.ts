@@ -1,7 +1,8 @@
 import { CanActivate, ExecutionContext, Injectable, Logger } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
-import { UserEntity, UserRole } from '../../user/user.entity';
+import { UserRole } from '../../user/user.entity';
+import { JWTUser } from '../jwt/jwt.interface';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -15,13 +16,13 @@ export class RolesGuard implements CanActivate {
       return true;
     }
     const request = context.switchToHttp().getRequest();
-    const user: UserEntity = request.user;
+    const user: JWTUser = request.user;
 
     if (!user) {
       this.logger.error('No user on request');
       return false;
     }
 
-    return roles.includes(user.role);
+    return roles.includes(UserRole[user.role as keyof typeof UserRole]);
   }
 }

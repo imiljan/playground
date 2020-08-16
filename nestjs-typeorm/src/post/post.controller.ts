@@ -13,10 +13,11 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
+import { JWTUser } from '../auth/jwt/jwt.interface';
 import { GetUser } from '../auth/jwt/user.decorator';
 import { Roles } from '../auth/roles/roles.decorator';
 import { RolesGuard } from '../auth/roles/roles.guard';
-import { UserEntity, UserRole } from '../user/user.entity';
+import { UserRole } from '../user/user.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { GetPostsDto } from './dto/get-posts.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -40,7 +41,7 @@ export class PostController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles(UserRole.USER)
-  createPost(@Body(ValidationPipe) createPostDto: CreatePostDto, @GetUser() user: UserEntity) {
+  createPost(@Body(ValidationPipe) createPostDto: CreatePostDto, @GetUser() user: JWTUser) {
     return this.postService.createPost(createPostDto, user);
   }
 
@@ -57,7 +58,7 @@ export class PostController {
   updatePost(
     @Param('id', ParseIntPipe) postId: number,
     @Body(ValidationPipe) updatePostDto: UpdatePostDto,
-    @GetUser() user: UserEntity,
+    @GetUser() user: JWTUser,
   ) {
     return this.postService.updatePost(postId, updatePostDto, user);
   }
