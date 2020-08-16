@@ -1,5 +1,6 @@
 import { Logger, LogLevel } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import cookieParser from 'cookie-parser';
 
 import { AppModule } from './app.module';
 import { configServiceInstance } from './shared/config/config.service';
@@ -17,6 +18,8 @@ async function bootstrap() {
   });
 
   const serverConfig = configServiceInstance.server;
+
+  app.use(cookieParser());
 
   app.enableCors({
     origin: serverConfig.origin || '*',

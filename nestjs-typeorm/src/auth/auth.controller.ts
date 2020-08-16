@@ -14,12 +14,12 @@ import { Request, Response } from 'express';
 import ms from 'ms';
 
 import { ConfigService } from '../shared/config/config.service';
-import { UserEntity } from '../user/user.entity';
 import { AuthService } from './auth.service';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { JWTUser } from './jwt/jwt.interface';
 import { GetUser } from './jwt/user.decorator';
 
 @Controller('auth')
@@ -67,9 +67,7 @@ export class AuthController {
 
   @Get('/me')
   @UseGuards(AuthGuard())
-  me(@GetUser() user: UserEntity) {
-    delete user.password;
-    delete user.tokenVersion;
+  me(@GetUser() user: JWTUser) {
     return user;
   }
 
@@ -93,6 +91,7 @@ export class AuthController {
   private setCookie(res: Response, refreshToken: string) {
     res.cookie('xyz', refreshToken, {
       expires: new Date(Date.now() + ms(this.config.jwt.refreshExpiresIn)),
+      httpOnly: true,
       path: `/auth`,
       maxAge: ms(this.config.jwt.refreshExpiresIn),
     });
