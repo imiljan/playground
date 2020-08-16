@@ -1,0 +1,28 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "shell",
+      "label": "Up Dev",
+      "command": "docker-compose up -d",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Down Dev",
+      "command": "docker-compose down",
+      "problemMatcher": []
+    },
+    {
+      "type": "shell",
+      "label": "Show logs",
+      "command": "docker-compose logs -f gql",
+      "presentation": {
+        "reveal": "always",
+        "focus": true,
+        "panel": "new"
+      },
+      "problemMatcher": []
+    }
+  ]
+}

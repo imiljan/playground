@@ -1,0 +1,27 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Mutation {
+  addUser(UserInput: UserInput!): User!
+  removeUser(id: String!): Boolean!
+}
+
+type Query {
+  getUser(id: String!): User!
+  getUsers(age: Int): [User!]!
+}
+
+"""User type"""
+type User {
+  age: Float
+
+  """User email"""
+  email: String!
+  id: ID!
+}
+
+input UserInput {
+  age: Int!
+  email: String!
+}

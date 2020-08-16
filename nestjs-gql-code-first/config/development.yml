@@ -1,0 +1,7 @@
+
+db:
+  host: 'db'
+  username: 'dev'
+  password: 'dev'
+  synchronize: true
+  migrationsRun: false
