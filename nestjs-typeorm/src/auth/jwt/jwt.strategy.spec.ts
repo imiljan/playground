@@ -2,8 +2,8 @@ import { UnauthorizedException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 
 import { ConfigService } from '../../shared/config/config.service';
-import { UserEntity } from '../user.entity';
-import { UserRepository } from '../user.repository';
+import { UserEntity } from '../../user/user.entity';
+import { UserRepository } from '../../user/user.repository';
 import { JwtStrategy } from './jwt.strategy';
 
 const mockUserRepository = () => ({

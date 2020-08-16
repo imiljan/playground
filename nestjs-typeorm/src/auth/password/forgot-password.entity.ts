@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 
-@Entity()
+@Entity('forgot_password')
 export class ForgotPasswordEntity {
   @PrimaryColumn()
   email: string;

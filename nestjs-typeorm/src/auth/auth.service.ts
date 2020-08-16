@@ -14,14 +14,14 @@ import { Connection } from 'typeorm';
 
 import { MailService } from '../mail/mail.service';
 import { ConfigService } from '../shared/config/config.service';
+import { UserEntity } from '../user/user.entity';
+import { UserRepository } from '../user/user.repository';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { AccessTokenPayload, RefreshTokenPayload } from './jwt/jwt-payload.interface';
 import { ForgotPasswordEntity } from './password/forgot-password.entity';
 import { ForgotPasswordRepository } from './password/forgot-password.repository';
-import { UserEntity } from './user.entity';
-import { UserRepository } from './user.repository';
 
 @Injectable()
 export class AuthService {

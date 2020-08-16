@@ -4,14 +4,12 @@ import { Module } from '@nestjs/common';
 import path from 'path';
 
 import { configServiceInstance } from '../shared/config/config.service';
-import { SharedModule } from '../shared/shared.module';
 import { MailService } from './mail.service';
 
 const mailConfig = configServiceInstance.mailConfig;
 
 @Module({
   imports: [
-    SharedModule,
     MailerModule.forRoot({
       transport: {
         host: mailConfig.host,

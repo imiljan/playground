@@ -2,9 +2,12 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import { PostEntity } from '../post/post.entity';
 
 export enum UserRole {
   GUEST = 'GUEST',
@@ -42,4 +45,10 @@ export class UserEntity {
   // Min value for integer in postgres
   @Column({ default: -2147483648, select: false })
   tokenVersion: number;
+
+  @OneToMany(
+    () => PostEntity,
+    (post) => post.author,
+  )
+  posts: PostEntity[];
 }

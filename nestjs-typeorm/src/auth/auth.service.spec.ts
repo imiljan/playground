@@ -4,9 +4,9 @@ import { Connection } from 'typeorm';
 
 import { MailService } from '../mail/mail.service';
 import { ConfigService } from '../shared/config/config.service';
+import { UserRepository } from '../user/user.repository';
 import { AuthService } from './auth.service';
 import { ForgotPasswordRepository } from './password/forgot-password.repository';
-import { UserRepository } from './user.repository';
 
 const mockUserRepository = () => ({
   count: jest.fn(),

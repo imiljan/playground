@@ -1,6 +1,6 @@
 import { AfterLoad, AfterUpdate, Column, CreateDateColumn, Entity, PrimaryColumn } from 'typeorm';
 
-@Entity()
+@Entity('media')
 export class MediaEntity {
   @PrimaryColumn()
   uuid: string;
