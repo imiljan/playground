@@ -7,6 +7,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+import { AuthEntity } from '../auth/auth.entity';
 import { PostEntity } from '../post/post.entity';
 
 export enum UserRole {
@@ -17,8 +18,8 @@ export enum UserRole {
 
 @Entity({ name: 'user' })
 export class UserEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column({ unique: true })
   email: string;
@@ -42,13 +43,15 @@ export class UserEntity {
   })
   role: UserRole;
 
-  // Min value for integer in postgres
-  @Column({ default: -2147483648, select: false })
-  tokenVersion: number;
-
   @OneToMany(
     () => PostEntity,
     (post) => post.author,
   )
   posts: PostEntity[];
+
+  @OneToMany(
+    () => AuthEntity,
+    (auth) => auth.user,
+  )
+  tokens: AuthEntity[];
 }

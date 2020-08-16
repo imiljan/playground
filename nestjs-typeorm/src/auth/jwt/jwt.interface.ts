@@ -12,11 +12,10 @@ export interface RefreshTokenPayload {
   exp: number;
   iat: number;
   sub: string;
-  tokenVersion: number;
 }
 
 export interface JWTUser {
-  id: number;
+  id: string;
   email: string;
   role: UserRole;
 }

@@ -2,6 +2,7 @@ import {
   ConflictException,
   GoneException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
   UnauthorizedException,
@@ -16,6 +17,7 @@ import { MailService } from '../mail/mail.service';
 import { ConfigService } from '../shared/config/config.service';
 import { UserEntity } from '../user/user.entity';
 import { UserRepository } from '../user/user.repository';
+import { AuthRepository } from './auth.repository';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { ResetPasswordDto } from './dto/reset-password.dto';
@@ -25,11 +27,13 @@ import { ForgotPasswordRepository } from './password/forgot-password.repository'
 
 @Injectable()
 export class AuthService {
-  private logger = new Logger(AuthService.name);
+  private readonly logger = new Logger(AuthService.name);
 
   constructor(
     @InjectRepository(UserRepository)
     private readonly userRepository: UserRepository,
+    @InjectRepository(AuthRepository)
+    private readonly authRepository: AuthRepository,
     @InjectRepository(ForgotPasswordRepository)
     private readonly forgotPasswordRepository: ForgotPasswordRepository,
     private readonly connection: Connection,
@@ -66,41 +70,62 @@ export class AuthService {
   async login({ email, password }: LoginDto) {
     const user = await this.userRepository.findOne(
       { email },
-      { select: ['id', 'email', 'password', 'tokenVersion', 'role'] },
+      { select: ['id', 'email', 'password', 'role'] },
     );
 
     if (!user || !(await verifyPassword(user.password, password))) {
       throw new UnauthorizedException('Wrong credentials!');
     }
 
-    return this.generateTokens(user);
+    return this.generateTokens(user, true);
   }
 
   async refresh(token: string) {
     try {
-      const { sub: id, tokenVersion }: RefreshTokenPayload = await this.jwtService.verifyAsync(
-        token,
-      );
-
-      const user = await this.userRepository.findOne(id, {
-        select: ['id', 'email', 'tokenVersion'],
+      const { sub: id, exp }: RefreshTokenPayload = await this.jwtService.verifyAsync(token, {
+        secret: this.config.jwt.refreshSecret,
       });
 
-      if (!user || user.tokenVersion != tokenVersion) {
+      const user = await this.userRepository.findOne(id, {
+        select: ['id', 'email', 'role'],
+        relations: ['tokens'],
+      });
+
+      const isValid = user?.tokens.find((t) => t.token === token)?.isValid;
+
+      if (!user || !isValid) {
         throw new UnauthorizedException('Session expired!');
       }
 
-      return this.generateTokens(user);
+      const timeDif = new Date(exp * 1000).getTime() - new Date().getTime();
+      const acceptingDif = ms('24h');
+      const generateRefresh = timeDif <= acceptingDif;
+
+      return this.generateTokens(user, generateRefresh);
     } catch (error) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('Session expired');
     }
   }
 
   async logout(token: string) {
-    const { sub: id }: RefreshTokenPayload = await this.jwtService
-      .verifyAsync(token)
-      .catch((err) => this.logger.error(err));
-    await this.userRepository.increment({ id: parseInt(id) }, 'tokenVersion', 1);
+    try {
+      const { sub: id }: RefreshTokenPayload = await this.jwtService.verifyAsync(token, {
+        secret: this.config.jwt.refreshSecret,
+      });
+
+      const refreshToken = await this.authRepository.findOne({
+        where: { token, user: { id } },
+        relations: ['user'],
+      });
+
+      if (refreshToken) {
+        refreshToken.isValid = false;
+        await this.authRepository.save(refreshToken);
+      }
+    } catch (err) {
+      this.logger.error(err);
+      throw new InternalServerErrorException();
+    }
   }
 
   async forgotPassword(email: string) {
@@ -149,27 +174,30 @@ export class AuthService {
   // Private functions
   /**
    *
-   * @param user User must have id, email and tokenVersion
+   * @param user User must have id, email and role
    */
-  private async generateTokens(user: UserEntity) {
-    const accessToken = await this.jwtService.signAsync(
-      {
-        email: user.email,
-        role: user.role,
-      },
-      { subject: '' + user.id },
-    );
+  private async generateTokens(user: UserEntity, generateRefresh: boolean) {
+    const { id: subject, email, role } = user;
 
-    // ? Check if there is a way to use different secret for signing
-    const refreshToken = await this.jwtService.signAsync(
-      {
-        tokenVersion: user.tokenVersion,
-      },
-      {
-        subject: '' + user.id,
-        expiresIn: this.config.jwt.refreshExpiresIn,
-      },
-    );
+    const accessToken = await this.jwtService.signAsync({ email, role }, { subject });
+
+    let refreshToken = '';
+    if (generateRefresh) {
+      refreshToken = await this.jwtService.signAsync(
+        {},
+        {
+          subject,
+          expiresIn: this.config.jwt.refreshExpiresIn,
+          secret: this.config.jwt.refreshSecret,
+        },
+      );
+
+      await this.authRepository.save({
+        user,
+        token: refreshToken,
+        expiresAt: new Date(Date.now() + ms(this.config.jwt.refreshExpiresIn)),
+      });
+    }
 
     return { accessToken, refreshToken };
   }

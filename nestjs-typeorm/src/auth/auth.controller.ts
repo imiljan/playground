@@ -24,7 +24,9 @@ import { GetUser } from './jwt/user.decorator';
 
 @Controller('auth')
 export class AuthController {
-  private logger = new Logger(AuthController.name);
+  // This can be in config
+  private readonly refreshCookieKey = 'zyx';
+  private readonly logger = new Logger(AuthController.name);
 
   constructor(private readonly authService: AuthService, private readonly config: ConfigService) {}
 
@@ -44,13 +46,17 @@ export class AuthController {
   @Post('/refresh')
   async refresh(@Req() req: Request, @Res() res: Response) {
     const { accessToken, refreshToken } = await this.authService
-      .refresh(req.cookies.xyz)
+      .refresh(req.cookies[this.refreshCookieKey])
       .catch((err) => {
-        res.clearCookie('xyz', { path: `/auth` });
+        this.logger.error(err);
+        res.clearCookie(this.refreshCookieKey, { path: `/auth` });
         throw err;
       });
 
-    this.setCookie(res, refreshToken);
+    if (refreshToken !== '') {
+      this.setCookie(res, refreshToken);
+    }
+
     res.send({ accessToken });
   }
 
@@ -58,10 +64,10 @@ export class AuthController {
   @UseGuards(AuthGuard())
   logout(@Req() req: Request, @Res() res: Response) {
     this.authService
-      .logout(req.cookies.xyz)
+      .logout(req.cookies[this.refreshCookieKey])
       .catch((e) => this.logger.error('User logout error: ' + e));
 
-    res.clearCookie('xyz');
+    res.clearCookie(this.refreshCookieKey, { path: '/auth' });
     res.end();
   }
 
@@ -89,8 +95,7 @@ export class AuthController {
    * @param refreshToken refresh token
    */
   private setCookie(res: Response, refreshToken: string) {
-    res.cookie('xyz', refreshToken, {
-      expires: new Date(Date.now() + ms(this.config.jwt.refreshExpiresIn)),
+    res.cookie(this.refreshCookieKey, refreshToken, {
       httpOnly: true,
       path: `/auth`,
       maxAge: ms(this.config.jwt.refreshExpiresIn),

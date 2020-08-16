@@ -11,7 +11,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor(readonly config: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.JWT_SECRET || config.jwt.secret,
+      secretOrKey: process.env.JWT_ACCESS_SECRET || config.jwt.accessSecret,
     });
   }
 
@@ -24,7 +24,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     }
 
     const user: JWTUser = {
-      id: parseInt(sub),
+      id: sub,
       email,
       role: role || UserRole.GUEST,
     };

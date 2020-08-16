@@ -11,5 +11,5 @@ db:
   migrationsRun: false
 
 jwt:
-  secret: 'supersecret'
-  expiresIn: 3600000
+  accessSecret: 'supersecret'
+  refreshSecret: 'supersecret2'

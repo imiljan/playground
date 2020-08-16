@@ -15,8 +15,9 @@ export interface DbConfig {
 }
 
 export interface JwtConfig {
-  secret: string;
-  expiresIn: number;
+  accessSecret: string;
+  refreshSecret: string;
+  expiresIn: string;
   refreshExpiresIn: string;
 }
 

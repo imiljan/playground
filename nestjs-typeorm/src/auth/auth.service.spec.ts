@@ -5,6 +5,7 @@ import { Connection } from 'typeorm';
 import { MailService } from '../mail/mail.service';
 import { ConfigService } from '../shared/config/config.service';
 import { UserRepository } from '../user/user.repository';
+import { AuthRepository } from './auth.repository';
 import { AuthService } from './auth.service';
 import { ForgotPasswordRepository } from './password/forgot-password.repository';
 
@@ -14,6 +15,11 @@ const mockUserRepository = () => ({
   save: jest.fn(),
   findOne: jest.fn(),
   increment: jest.fn(),
+});
+
+const mockAuthRepository = () => ({
+  save: jest.fn(),
+  findOne: jest.fn(),
 });
 
 const mockForgotPasswordRepository = () => ({
@@ -35,6 +41,7 @@ describe('AuthService', () => {
       providers: [
         AuthService,
         { provide: UserRepository, useFactory: mockUserRepository },
+        { provide: AuthRepository, useFactory: mockAuthRepository },
         { provide: ForgotPasswordRepository, useFactory: mockForgotPasswordRepository },
         {
           provide: Connection,

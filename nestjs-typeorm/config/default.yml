@@ -11,7 +11,7 @@ db:
   migrationsRun: true
 
 jwt:
-  expiresIn: 3600
+  expiresIn: '30m'
   refreshExpiresIn: '7d'
 
 mail:
