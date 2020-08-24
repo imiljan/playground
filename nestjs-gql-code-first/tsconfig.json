@@ -5,6 +5,7 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
     "target": "es2017",
     "sourceMap": true,
     "outDir": "./dist",
@@ -34,10 +35,9 @@
     /* Report error when not all code paths in function return a value. */,
     "noFallthroughCasesInSwitch": true
     /* Report errors for fallthrough cases in switch statement. */,
-    "esModuleInterop": true,
-    /* List of folders to include type definitions from. */
+    "esModuleInterop": true
+    /* List of folders to include type definitions from. */,
     "typeRoots": [
-      "./src/types",
       "./node_modules/@types"
     ]
   },
